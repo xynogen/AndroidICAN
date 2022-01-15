@@ -16,10 +16,6 @@ public class Sensor {
         this.distance = distance;
     }
 
-    public String getPh() {
-        return ph;
-    }
-
     public void setPh(String ph) {
         this.ph = ph;
     }
@@ -34,6 +30,10 @@ public class Sensor {
 
     public void setDistance(String distance) {
         this.distance = distance;
+    }
+
+    public String getPH() {
+        return ph;
     }
 
     public String getTurbidity() {

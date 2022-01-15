@@ -12,6 +12,8 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.polsri.ican.R;
@@ -20,12 +22,16 @@ public class CameraView extends AppCompatActivity {
     ImageView Camera;
     FirebaseStorage storage = FirebaseStorage.getInstance();
     SwipeRefreshLayout swipeRefreshLayout;
-
+    com.polsri.ican.dataClass.Snap Snap;
+    DatabaseReference database;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_camera_view);
+
+        String url = "https://icanpolsri-a0d38-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        database = FirebaseDatabase.getInstance(url).getReference("/");
 
         Camera = (ImageView) findViewById(R.id.CameraIV);
         swipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swiperefreshlayoutNode1);
@@ -33,7 +39,8 @@ public class CameraView extends AppCompatActivity {
 
         swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {@Override
         public void onRefresh() {
-            ShowImage("gs://icanpolsri-a0d38.appspot.com", "Kolam2.jpeg");
+            database.child("snap").child("trig").setValue("1");
+            ShowImage("gs://icanpolsri-a0d38.appspot.com", "Kolam.jpeg");
             swipeRefreshLayout.setRefreshing(false);
         }
         });

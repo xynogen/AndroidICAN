@@ -123,7 +123,7 @@ public class prediction extends AppCompatActivity {
         Button hitung = (Button) findViewById(R.id.hitung);
         TextView hasil = (TextView) findViewById(R.id.hasil);
 
-        database.child("settings").child("date").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        database.child("prediction").child("date").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!task.isSuccessful()) {
@@ -138,7 +138,7 @@ public class prediction extends AppCompatActivity {
             }
         });
 
-        database.child("settings").child("biaya").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        database.child("prediction").child("biaya").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!task.isSuccessful()) {
@@ -157,7 +157,7 @@ public class prediction extends AppCompatActivity {
             }
         });
 
-        database.child("settings").child("pendapatan").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
+        database.child("prediction").child("pendapatan").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
             public void onComplete(@NonNull Task<DataSnapshot> task) {
                 if (!task.isSuccessful()) {
@@ -196,9 +196,9 @@ public class prediction extends AppCompatActivity {
                 settingPendapatan = new SettingPendapatan(jumlahPanenStr, hargaJualProdukStr);
 
                 try {
-                    database.child("settings").child("date").setValue(settingsDate);
-                    database.child("settings").child("biaya").setValue(settingsBiaya);
-                    database.child("settings").child("pendapatan").setValue(settingPendapatan);
+                    database.child("prediction").child("date").setValue(settingsDate);
+                    database.child("prediction").child("biaya").setValue(settingsBiaya);
+                    database.child("prediction").child("pendapatan").setValue(settingPendapatan);
                 } catch (Exception e) {
                     Toast.makeText(getBaseContext(), "Data Gagal Dikirim" , Toast.LENGTH_SHORT ).show();
                 }

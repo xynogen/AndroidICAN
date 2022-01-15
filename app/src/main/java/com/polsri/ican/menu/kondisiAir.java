@@ -1,6 +1,9 @@
 package com.polsri.ican.menu;
 
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -8,9 +11,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -19,34 +21,49 @@ import com.google.firebase.database.ValueEventListener;
 import com.polsri.ican.R;
 import com.polsri.ican.dataClass.Sensor;
 import com.polsri.ican.dataClass.Switch;
+import com.polsri.ican.dataClass.Settings;
+import com.polsri.ican.menu.CameraView;
 
 
 public class kondisiAir extends AppCompatActivity {
     private String derajat = "°C";
     private String kubik = "m³";
+    private float panjang, lebar, jarakKeDasar;
     private TextView PH, Turbidity, Temp, Volume;
-        private DatabaseReference database;
+    private DatabaseReference database;
+    private Switch sw;
+    private Settings set;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_kondisi_air);
+        String url = "https://icanpolsri-a0d38-default-rtdb.asia-southeast1.firebasedatabase.app/";
+        database = FirebaseDatabase.getInstance(url).getReference("/");
+
+        sw = new Switch("0", "0", "0");
+        database.child("switch").setValue(sw);
 
         PH = (TextView) findViewById(R.id.phAir);
         Turbidity = (TextView) findViewById(R.id.turbidity);
         Temp = (TextView) findViewById(R.id.temp);
         Volume = (TextView) findViewById(R.id.volume);
-        String url = "https://icanpolsri-a0d38-default-rtdb.asia-southeast1.firebasedatabase.app/";
-        database = FirebaseDatabase.getInstance(url).getReference("/");
-        Button siramTanaman = (Button) findViewById(R.id.siramTanaman);
 
-        Button btnCamera = (Button) findViewById(R.id.btnCamera);
-        btnCamera.setOnClickListener(new View.OnClickListener() {
+
+        set = new Settings();
+
+        database.child("settings").get().addOnCompleteListener(new OnCompleteListener<DataSnapshot>() {
             @Override
-            public void onClick(View v) {
-                Intent i = new Intent(getApplicationContext(), CameraView.class);
-                startActivity(i);
-                finish();
+            public void onComplete(@NonNull Task<DataSnapshot> task) {
+                if (!task.isSuccessful()) {
+                    Toast.makeText(getBaseContext(), "Error getting data on Settings" , Toast.LENGTH_SHORT ).show();
+                }
+                else {
+                    set = task.getResult().getValue(Settings.class);
+                    panjang = Float.valueOf(set.getPanjang());
+                    lebar = Float.valueOf(set.getLebar());
+                    jarakKeDasar = Float.valueOf(set.getJarakKeDasar());
+                }
             }
         });
 
@@ -55,10 +72,13 @@ public class kondisiAir extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Sensor sensor = snapshot.child("data").getValue(Sensor.class);
-                PH.setText(sensor.getPh());
+                set = snapshot.child("settings").getValue(Settings.class);
+                PH.setText(sensor.getPH());
                 Turbidity.setText(sensor.getTurbidity().concat(" NTU"));
                 Temp.setText(sensor.getTemp().concat(derajat));
-                Volume.setText(sensor.getDistance().concat(kubik));
+                float tinggi = (float) (jarakKeDasar - Integer.parseInt(sensor.getDistance()))/100;
+                float volume = (float) panjang * lebar * tinggi;
+                Volume.setText(String.valueOf(volume).concat(kubik));
             }
 
             @Override
@@ -68,18 +88,41 @@ public class kondisiAir extends AppCompatActivity {
         };
         database.addValueEventListener(sensorListener);
 
+        Button siramTanaman = (Button) findViewById(R.id.siramTanaman);
+        siramTanaman.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                database.child("switch").child("pompa").setValue("1");
+                Toast.makeText(getBaseContext(), "Pompa Dinyalakan" , Toast.LENGTH_SHORT ).show();
+            }
+        });
+        Button aliriTanaman = (Button) findViewById(R.id.aliriTanaman);
+        aliriTanaman.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View view) {
+                database.child("switch").child("pompa2").setValue("1");
+                Toast.makeText(getBaseContext(), "Pompa Dinyalakan" , Toast.LENGTH_SHORT ).show();
+            }
+        });
+
         ValueEventListener switchListener = new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 Switch Switch = snapshot.child("switch").getValue(Switch.class);
-                if (Switch.getPompa() == "1" || Switch.getBlower() == "1") {
+                if (Switch.getPompa() == "1" || Switch.getBlower() == "1" || Switch.getPompa2() == "1") {
                     siramTanaman.setEnabled(false);
                     siramTanaman.setClickable(false);
                     siramTanaman.setBackgroundColor(getResources().getColor(R.color.gray));
+                    aliriTanaman.setEnabled(false);
+                    aliriTanaman.setClickable(false);
+                    aliriTanaman.setBackgroundColor(getResources().getColor(R.color.gray));
                 } else {
                     siramTanaman.setEnabled(true);
                     siramTanaman.setClickable(true);
                     siramTanaman.setBackgroundColor(getResources().getColor(R.color.purple));
+                    aliriTanaman.setEnabled(true);
+                    aliriTanaman.setClickable(true);
+                    aliriTanaman.setBackgroundColor(getResources().getColor(R.color.purple));
                 }
             }
 
@@ -90,12 +133,16 @@ public class kondisiAir extends AppCompatActivity {
         };
         database.addValueEventListener(switchListener);
 
-        siramTanaman.setOnClickListener(new View.OnClickListener(){
+        Button btnCamera = (Button) findViewById(R.id.btnCamera);
+        btnCamera.setOnClickListener(new View.OnClickListener() {
+            Intent i;
             @Override
-            public void onClick(View view) {
-                database.child("switch").child("pompa").setValue("1");
-                Toast.makeText(getBaseContext(), "Pompa Dinyalakan" , Toast.LENGTH_SHORT ).show();
+            public void onClick(View v) {
+                i = new Intent(getApplicationContext(), CameraView.class);
+                startActivity(i);
             }
         });
+
+
     }
 }
