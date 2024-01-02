@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "159526244127",
-    "project_id": "icanpolsri-a0d38",
-    "storage_bucket": "icanpolsri-a0d38.appspot.com"
+    "project_number": "",
+    "project_id": "",
+    "storage_bucket": ""
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:159526244127:android:f8703566a1a5e24287ea2a",
+        "mobilesdk_app_id": "",
         "android_client_info": {
-          "package_name": "com.polsri.ican"
+          "package_name": ""
         }
       },
       "oauth_client": [
         {
-          "client_id": "159526244127-abvnj2d62r0i7idc1cre6ng2oe0brdlg.apps.googleusercontent.com",
+          "client_id": "",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyBNH_cBf9n1a7I_XsnjE_6mLuebN5pc1nQ"
+          "current_key": ""
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "159526244127-abvnj2d62r0i7idc1cre6ng2oe0brdlg.apps.googleusercontent.com",
+              "client_id": "",
               "client_type": 3
             }
           ]
